@@ -3,8 +3,8 @@
 [![Latest Stable Version](https://poser.pugx.org/laudis/fiscal/v)](//packagist.org/packages/laudis/fiscal)
 [![Total Downloads](https://poser.pugx.org/laudis/fiscal/downloads)](//packagist.org/packages/laudis/fiscal)
 [![Monthly Downloads](https://poser.pugx.org/laudis/fiscal/d/monthly)](//packagist.org/packages/laudis/fiscal)
-[![Maintainability](https://api.codeclimate.com/v1/badges/275c2269aa54c2c43210/maintainability)](https://codeclimate.com/github/laudis-technologies/fiscal/fiscal)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/275c2269aa54c2c43210/test_coverage)](https://codeclimate.com/github/laudis-technologies/fiscal/fiscal)
+[![Maintainability](https://api.codeclimate.com/v1/badges/1d172cb1b3dcd82f4b74/maintainability)](https://codeclimate.com/github/laudis-technologies/fiscal/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/1d172cb1b3dcd82f4b74/test_coverage)](https://codeclimate.com/github/laudis-technologies/fiscal/test_coverage)
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/laudis-technologies/fiscal/blob/main/LICENSE)
 
 ## Installation
