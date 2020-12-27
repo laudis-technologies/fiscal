@@ -1,0 +1,37 @@
+version: '3.2'
+
+networks:
+    fiscal:
+        driver: bridge
+
+services:
+    client:
+        build:
+            context: .
+            dockerfile: Dockerfile
+            args:
+                - WITH_XDEBUG=true
+        working_dir: /opt/project
+        networks:
+            - fiscal
+        volumes:
+            - .:/opt/project
+        depends_on:
+            - mariadb
+        expose:
+            - 9000
+        environment:
+            - XDEBUG_MODE=coverage
+    mariadb:
+        networks:
+            - fiscal
+        image: mariadb:latest
+        expose:
+            - 3306
+        ports:
+            - 3306:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=test
+            - MYSQL_DATABASE=test
+        volumes:
+            - ./resources:/docker-entrypoint-initdb.d
