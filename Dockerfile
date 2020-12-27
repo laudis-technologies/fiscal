@@ -22,16 +22,19 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /opt/project
 
-COPY composer.json composer.lock phpunit.xml.dist phpunit.coverage.xml.dist psalm.xml .php_cs ./
-COPY src/ src/
-COPY tests/ tests/
+COPY composer.json composer.lock ./
 COPY tools/ tools/
-COPY .git/ .git/
-
-
 RUN composer install  && \
     composer install --working-dir=tools/php-cs-fixer && \
     composer install --working-dir=tools/psalm
+
+COPY phpunit.xml.dist phpunit.coverage.xml.dist psalm.xml .php_cs ./
+COPY src/ src/
+COPY tests/ tests/
+COPY docker/mariadb/resources/ resources/
+COPY .git/ .git/
+
+
 
 
 

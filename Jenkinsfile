@@ -8,35 +8,36 @@ pipeline {
     stages {
         stage('Pull') {
             steps {
-                sh 'docker-compose -p $BRANCH_NAME pull'
+                sh 'docker-compose -f docker/docker-compose.yml -p $BRANCH_NAME pull'
             }
         }
         stage('Build') {
             steps {
-                sh 'docker-compose -p $BRANCH_NAME build --parallel'
+                sh 'docker-compose -f docker/docker-compose.yml -p $BRANCH_NAME build --parallel'
+                sh 'docker build -t php-fiscal:static-analysis-$BRANCH_NAME .'
             }
         }
         stage('Teardown') {
             steps {
-                sh 'docker-compose -p $BRANCH_NAME down --volumes --remove-orphans'
+                sh 'docker-compose -f docker/docker-compose.yml -p $BRANCH_NAME down --volumes --remove-orphans'
             }
         }
         stage('Static Analysis') {
             steps {
-                sh 'docker-compose -p $BRANCH_NAME run client tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --dry-run'
-                sh 'docker-compose -p $BRANCH_NAME  run client tools/psalm/vendor/bin/psalm --show-info=true'
+                sh 'docker run php-fiscal:static-analysis-$BRANCH_NAME tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --dry-run'
+                sh 'docker run php-fiscal:static-analysis-$BRANCH_NAME tools/psalm/vendor/bin/psalm --show-info=true'
             }
         }
         stage('Test') {
             steps {
-                sh 'docker-compose -p $BRANCH_NAME up -d --force-recreate --remove-orphans'
+                sh 'docker-compose -f docker/docker-compose.yml -p $BRANCH_NAME up -d --force-recreate --remove-orphans'
                 sh 'sleep 10' // Wait for the servers to complete booting
-                sh 'docker-compose -p $BRANCH_NAME run client php vendor/bin/phpunit'
+                sh 'docker-compose -f docker/docker-compose.yml -p $BRANCH_NAME run client php vendor/bin/phpunit'
             }
         }
         stage ('Coverage') {
             steps {
-                sh 'docker-compose -p $BRANCH_NAME run client bash -c "\
+                sh 'docker-compose -f docker/docker-compose.yml -p $BRANCH_NAME run client bash -c "\
                     git checkout -B $BRANCH_NAME && \
                     cc-test-reporter before-build && \
                     vendor/bin/phpunit --config phpunit.coverage.xml.dist -d memory_limit=1024M && \

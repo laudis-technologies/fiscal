@@ -28,8 +28,10 @@ services:
         image: mariadb:latest
         expose:
             - 3306
+        ports:
+            - 3306:3306
         environment:
             - MYSQL_ROOT_PASSWORD=test
             - MYSQL_DATABASE=test
         volumes:
-            - ./resources:/docker-entrypoint-initdb.d
+            - ./docker/mariadb/resources:/docker-entrypoint-initdb.d
