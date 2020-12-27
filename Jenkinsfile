@@ -41,7 +41,7 @@ pipeline {
                     cc-test-reporter before-build && \
                     vendor/bin/phpunit --config phpunit.coverage.xml.dist -d memory_limit=1024M && \
                     cp out/phpunit/clover.xml clover.xml && \
-                    cc-test-reporter after-build --id ec331dd009edca126a4c27f4921c129de840c8a117643348e3b75ec547661f28 --exit-code 0"'
+                    cc-test-reporter after-build --id ba53635a16f172c606d292e52962b8d05aa53bd8f5407ead59356048829d51cc --exit-code 0"'
             }
         }
     }
