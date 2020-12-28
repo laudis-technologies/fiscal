@@ -70,6 +70,9 @@ final class ScaleRuleCalculation
         return $tbr;
     }
 
+    /**
+     * @return Rule
+     */
     private function presentRule(ScaleRuleCalculation $current, float $value): array
     {
         $limit = $current->rule->getLimit();
@@ -83,9 +86,10 @@ final class ScaleRuleCalculation
         $netValue = max($limitedValue - $previousLimit, 0.0);
         $factorValue = ScaleRule::FACTOR($current->rule);
         $ruleResult = $netValue * $factorValue;
+        $aggregated = 0.0;
 
         return array_merge(
-            compact('limitId', 'factorId', 'limitValue', 'limitedValue'),
+            compact('limitId', 'factorId', 'limitValue', 'limitedValue', 'aggregated'),
             compact('previousLimit', 'netValue', 'factorValue', 'ruleResult')
         );
     }
