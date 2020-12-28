@@ -25,10 +25,7 @@ final class ScaleRule
         $this->factor = $factor;
     }
 
-    /**
-     * @return float|int
-     */
-    public static function LIMIT(self $rule)
+    public static function LIMIT(self $rule): float
     {
         $limit = $rule->getLimit();
         if ($limit === null) {
@@ -48,10 +45,6 @@ final class ScaleRule
         return $factor->getValue();
     }
 
-    /**
-     * @param float $from
-     * @param float $rhs
-     */
     public static function make(?IndexedValue $limit = null, ?IndexedValue $factor = null): ScaleRule
     {
         return new self($limit, $factor);
