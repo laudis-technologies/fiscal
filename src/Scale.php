@@ -16,7 +16,7 @@ use Ds\Vector;
 
 /**
  * @psalm-type Rule = array{limitId: int|null, factorId: int|null, limitValue: float, limitedValue: float, previousLimit: float, netValue: float, factorValue: float, ruleResult: float, aggregated: float}
- * @psalm-type Index = array{id: int, slug: string, name: string, value: float}
+ * @psalm-type Index = array{id: int, slug: string, name: string, value: float, precision: int}
  * @psalm-type Explanation = array{scale: Vector<Rule>, indexedValues: Map<int, Index>,input: float, output: float}
  */
 final class Scale
@@ -24,13 +24,17 @@ final class Scale
     /** @var Vector<ScaleRule> */
     private Vector $rules;
     private bool $sorted = false;
+    private int $id;
+    private string $slug;
 
     /**
      * @param iterable<ScaleRule> $rules
      */
-    public function __construct(iterable $rules = null)
+    public function __construct(int $id, string $slug, iterable $rules)
     {
-        $this->rules = new Vector($rules ?? []);
+        $this->rules = new Vector($rules);
+        $this->id = $id;
+        $this->slug = $slug;
     }
 
     public function addScaleRule(ScaleRule $rule): void
@@ -88,10 +92,22 @@ final class Scale
 
         return [
             'scale' => $calculation === null ? $vector : $calculation->explain($value),
+            'slug' => $this->slug,
+            'id' => $this->id,
             'indexedValues' => $values,
             'input' => $value,
             'output' => $this->calculate($value),
         ];
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getSlug(): string
+    {
+        return $this->slug;
     }
 
     private function wrapCalculation(): ?ScaleRuleCalculation
@@ -114,6 +130,7 @@ final class Scale
             'value' => $factor->getValue(),
             'type' => $factor->getType()->getValue(),
             'name' => $factor->getName(),
+            'precision' => $factor->getPrecision(),
         ];
     }
 }

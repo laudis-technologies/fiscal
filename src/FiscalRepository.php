@@ -17,13 +17,14 @@ use Ds\Map;
 use Ds\Set;
 use Ds\Vector;
 use Exception;
+use JsonException;
 use PDO;
 use PDOException;
 use UnexpectedValueException;
 
 /**
- * @psalm-type IndexResult = array{id: string, slug: string, name_override: string|null, type: string, start: string, end: string, name: string, value: float}
- * @psalm-type ScaleResult = array{id: string, slug: string, name: string, factor: string|null, upperLimit: string|null}
+ * @psalm-type IndexResult = array{id: string, slug: string, name_override: string|null, type: string, start: string, end: string, name: string, value: float, precision: int}
+ * @psalm-type ScaleResult = array{id: numeric, slug: string, name: string, factor: string|null, upperLimit: string|null}
  */
 final class FiscalRepository
 {
@@ -53,7 +54,7 @@ final class FiscalRepository
         foreach ($results as $result) {
             $scale = $map->get($result['slug'], null);
             if ($scale === null) {
-                $scale = new Scale();
+                $scale = new Scale((int) $result['id'], $result['slug'], []);
                 $map->put($result['slug'], $scale);
             }
             $upperLimit = $result['upperLimit'];
@@ -123,6 +124,7 @@ final class FiscalRepository
 
         $statement = $this->pdo->prepare(<<<SQL
 SELECT iv.id as id,
+       iv.`precision` as `precision`,
        iv.slug as slug,
        iv.original_name as name,
        iv.type as type,
@@ -172,12 +174,13 @@ SQL
                 throw new UnexpectedValueException('Expected to receive a valid type');
             }
 
-            return IndexedValue::make(
+            return new IndexedValue(
                 (int) $value['id'],
                 $value['slug'],
                 $value['name_override'] ?? $value['name'],
                 $value['value'],
                 $indexTypes[0],
+                $value['precision']
             );
         });
     }
@@ -197,6 +200,7 @@ SQL
         $statement = $this->pdo->prepare(<<<SQL
 SELECT  scales.name as name,
         scales.slug as slug,
+        scales.id as id,
         scale_rules.factor as factor,
         scale_rules.upper_limit as upperLimit
 FROM scales
@@ -245,7 +249,7 @@ SQL
     /**
      * @param iterable<string> $slugs
      *
-     * @throws \JsonException
+     * @throws JsonException
      *
      * @return array<int, IndexResult>
      */
@@ -256,6 +260,7 @@ SQL
 
         $statement = $this->pdo->prepare(<<<SQL
 SELECT iv.id as id,
+       iv.precision as `precision`,
        iv.slug as slug,
        iv.original_name as name,
        iv.type as type,

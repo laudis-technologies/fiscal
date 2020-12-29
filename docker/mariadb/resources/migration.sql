@@ -121,18 +121,25 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `indexed_values`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `indexed_values` (
-                                  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                                  `created_at` timestamp NULL DEFAULT NULL,
-                                  `updated_at` timestamp NULL DEFAULT NULL,
-                                  `slug` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                                  `original_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                                  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-                                  PRIMARY KEY (`id`),
-                                  UNIQUE KEY `indexed_values_v2_slug_unique` (`slug`),
-                                  KEY `indexed_values_v2_original_name_index` (`original_name`),
-                                  KEY `indexed_values_v2_type_index` (`type`)
+create table indexed_values
+(
+    id bigint unsigned auto_increment
+        primary key,
+    created_at timestamp null,
+    updated_at timestamp null,
+    slug varchar(255) not null,
+    original_name varchar(255) not null,
+    type varchar(255) not null,
+    `precision` int null,
+    constraint indexed_values_v2_slug_unique
+        unique (slug)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+create index indexed_values_v2_original_name_index
+    on indexed_values (original_name);
+
+create index indexed_values_v2_type_index
+    on indexed_values (type);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -141,7 +148,7 @@ CREATE TABLE `indexed_values` (
 
 LOCK TABLES `indexed_values` WRITE;
 /*!40000 ALTER TABLE `indexed_values` DISABLE KEYS */;
-INSERT INTO `indexed_values` VALUES (1,NULL,NULL,'a','a','euro'),(2,NULL,NULL,'b','b','euro'),(3,NULL,NULL,'c','c','percentage'),(4,NULL,NULL,'d','d','percentage');
+INSERT INTO `indexed_values` VALUES (1,NULL,NULL,'a','a','euro', 2),(2,NULL,NULL,'b','b','euro', 2),(3,NULL,NULL,'c','c','percentage', 4),(4,NULL,NULL,'d','d','percentage', 4);
 /*!40000 ALTER TABLE `indexed_values` ENABLE KEYS */;
 UNLOCK TABLES;
 

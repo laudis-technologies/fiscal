@@ -18,19 +18,16 @@ final class IndexedValue
     private string $slug;
     private int $id;
     private string $name;
+    private int $precision;
 
-    public function __construct(int $id, string $slug, string $name, float $value, IndexType $type)
+    public function __construct(int $id, string $slug, string $name, float $value, IndexType $type, int $precision)
     {
         $this->value = $value;
         $this->type = $type;
         $this->slug = $slug;
         $this->id = $id;
         $this->name = $name;
-    }
-
-    public static function make(int $id, string $slug, string $name, float $value, IndexType $type): IndexedValue
-    {
-        return new self($id, $slug, $name, $value, $type);
+        $this->precision = $precision;
     }
 
     public function getValue(): float
@@ -56,5 +53,10 @@ final class IndexedValue
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getPrecision(): int
+    {
+        return $this->precision;
     }
 }
