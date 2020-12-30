@@ -284,4 +284,153 @@ SQL
 
         return $results;
     }
+
+    /**
+     * @param iterable<string> $slugs
+     *
+     * @return Map<string, Vector<Range>>
+     */
+    public function loadVersions(iterable $slugs): Map
+    {
+        $vector = new Vector($slugs);
+        $in = str_repeat('?,', ($vector)->count() - 1).'?';
+
+        $statement = $this->pdo->prepare(<<<SQL
+SELECT  scales.slug as slug,
+        scale_rules.start as start,
+        scale_rules.end as end,
+        scale_rules.factor as factor,
+        scale_rules.upper_limit as `limit`
+FROM scales
+JOIN scale_rules ON scales.id = scale_rules.scale_id
+WHERE   scales.slug IN ($in)
+SQL);
+        $statement->execute($vector->toArray());
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        /** @var Map<string, Vector<Range>> $map */
+        $map = new Map();
+        /** @var Map<string, Set<int>> $scaleToIdMapping */
+        $scaleToIdMapping = new Map();
+        /** @var Set<int> $ids */
+        $ids = new Set();
+        foreach ($results as $result) {
+            if (!$scaleToIdMapping->hasKey($result['slug'])) {
+                $scaleToIdMapping->put($result['slug'], new Set());
+            }
+
+            if ($result['limit'] !== null) {
+                $ids->add((int) $result['limit']);
+                $scaleToIdMapping->get($result['slug'])->add((int) $result['limit']);
+            }
+            if ($result['factor'] !== null) {
+                $ids->add((int) $result['factor']);
+                $scaleToIdMapping->get($result['slug'])->add((int) $result['factor']);
+            }
+            $ranges = $map->get($result['slug'], null);
+            $newRange = Range::fromStringFormat($result['start'], $result['end']);
+            if ($ranges === null) {
+                /** @var Vector<Range> $ranges */
+                $ranges = new Vector();
+                $map->put($result['slug'], $ranges);
+            }
+            $ranges->push($newRange);
+        }
+
+        $in = str_repeat('?,', $ids->count() - 1).'?';
+
+        $statement = $this->pdo->prepare(<<<SQL
+SELECT iv.id as id,
+       ivv.added_since as start,
+       ivv.removed_since as end
+FROM indexed_values iv
+JOIN indexed_value_versions ivv on iv.id = ivv.contextual_id
+WHERE iv.id IN ($in)
+SQL);
+        $statement->execute($ids->toArray());
+        $results = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        /** @var Map<int, Vector<Range>> $ivMap */
+        $ivMap = new Map();
+        foreach ($results as $result) {
+            $ranges = $ivMap->get((int) $result['id'], null);
+            $newRange = Range::fromStringFormat($result['start'], $result['end']);
+            if ($ranges === null) {
+                /** @var Vector<Range> $ranges */
+                $ranges = new Vector();
+                $ivMap->put((int) $result['id'], $ranges);
+            }
+            $ranges->push($newRange);
+        }
+
+        foreach ($map as $slug => $ranges) {
+            if ($ranges->count() > 0) {
+                $min = PHP_INT_MAX;
+                $max = PHP_INT_MIN;
+                foreach ($ranges as $range) {
+                    $min = min($min, $range->getStart());
+                    $max = max($max, $range->getEnd());
+                }
+                $first = $ranges->first();
+                $last = $ranges->last();
+                foreach ($scaleToIdMapping->get($slug) as $id) {
+                    $ivs = $ivMap->get($id)->map(static function (Range $x) use ($first, $last) {
+                        return new Range(max($first->getStart(), $x->getStart()), min($last->getEnd(), $x->getEnd()));
+                    });
+                    $ranges = $ranges->merge($ivs);
+                }
+            }
+            $map->put($slug, $this->sortAndSplitRanges($ranges));
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param Vector<Range> $ranges
+     *
+     * @return Vector<Range>
+     */
+    private function sortAndSplitRanges(Vector $ranges): Vector
+    {
+        /** @var array<string, true> $map */
+        $map = [];
+        $ranges = $ranges->filter(static fn (Range $x) => $x->getStart() < $x->getEnd())
+            ->filter(static function (Range $x) use (&$map) {
+                $key = $x->getStart().':'.$x->getEnd();
+                if (!isset($map[$key])) {
+                    $map[$key] = true;
+
+                    return true;
+                }
+
+                return false;
+            });
+        /** @var Vector<Range> $tbr */
+        $tbr = new Vector();
+        foreach ($ranges as $newRange) {
+            for ($i = 0; $i < $tbr->count(); ++$i) {
+                $range = $tbr->get($i);
+                if ($newRange->getStart() >= $newRange->getEnd()) {
+                    break 1;
+                }
+                $otherRange = $range->sortAndSplit($newRange);
+                if ($otherRange !== null) {
+                    if ($i + 1 >= $tbr->count()) {
+                        $tbr->push($newRange);
+                    } else {
+                        $tbr->insert($i + 1, $newRange);
+                    }
+                    ++$i;
+                    $newRange = $otherRange;
+                }
+            }
+            if ($newRange->getStart() < $newRange->getEnd()) {
+                $tbr->push($newRange);
+            }
+            $tbr = $tbr->filter(static fn (Range $x) => $x->getStart() < $x->getEnd());
+        }
+
+        return $tbr;
+    }
 }

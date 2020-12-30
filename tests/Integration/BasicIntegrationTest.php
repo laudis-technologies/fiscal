@@ -9,17 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Laudis\Fiscal\Tests;
+namespace Laudis\Fiscal\Tests\Integration;
 
 use Exception;
 use JsonException;
 use Laudis\Fiscal\FiscalRepository;
 use Laudis\Fiscal\IndexedValue;
 use Laudis\Fiscal\IndexType;
+use Laudis\Fiscal\Range;
 use PDO;
 use PHPUnit\Framework\TestCase;
 
-final class BasicTest extends TestCase
+final class BasicIntegrationTest extends TestCase
 {
     private FiscalRepository $repo;
 
@@ -59,5 +60,18 @@ final class BasicTest extends TestCase
             'c' => new IndexedValue(3, 'c', 'c', 0.55, IndexType::PERCENTAGE(), 4),
             'd' => new IndexedValue(4, 'd', 'd', 0.25, IndexType::PERCENTAGE(), 4),
         ], $scales->toArray());
+    }
+
+    public function testRanges(): void
+    {
+        $versions = $this->repo->loadVersions(['e', 'f']);
+        self::assertEquals([
+            Range::fromStringFormat('2020-01-01', '2020-12-31'),
+            Range::fromStringFormat('2021-01-01', '9999-12-31'),
+        ], $versions->get('e', null)->toArray());
+        self::assertEquals([
+            Range::fromStringFormat('2020-01-01', '2020-12-31'),
+            Range::fromStringFormat('2021-01-01', '9999-12-31'),
+        ], $versions->get('f', null)->toArray());
     }
 }
