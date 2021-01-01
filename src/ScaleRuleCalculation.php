@@ -65,6 +65,7 @@ final class ScaleRuleCalculation
             $results['aggregated'] = $aggregation;
             $tbr->set($i, $results);
             $aggregation += ($results['ruleResult'] ?? 0.0);
+            $aggregation = is_infinite($aggregation) ? PHP_FLOAT_MAX : $aggregation;
         }
 
         return $tbr;
@@ -86,6 +87,7 @@ final class ScaleRuleCalculation
         $netValue = max($limitedValue - $previousLimit, 0.0);
         $factorValue = ScaleRule::FACTOR($current->rule);
         $ruleResult = $netValue * $factorValue;
+        $ruleResult = is_infinite($ruleResult) ? PHP_FLOAT_MAX : $ruleResult;
         $aggregated = 0.0;
 
         return array_merge(
