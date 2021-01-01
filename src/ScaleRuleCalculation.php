@@ -63,7 +63,7 @@ final class ScaleRuleCalculation
         $aggregation = 0.0;
         foreach ($tbr as $i => $results) {
             $aggregation += ($results['ruleResult'] ?? 0.0);
-            $results['aggregation'] = $aggregation;
+            $results['aggregated'] = $aggregation;
             $tbr->set($i, $results);
         }
 
