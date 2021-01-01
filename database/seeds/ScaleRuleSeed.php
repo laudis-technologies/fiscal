@@ -48,7 +48,7 @@ final class ScaleRuleSeed extends AbstractSeed
             $percentages = $ivs['percentage'];
             for ($i = 0; $i < $rowCount; ++$i) {
                 $factor = $i === 0 && $emptyStart ? null : $percentages[$this->faker->numberBetween(0, count($euros) - 1)]['id'];
-                $limit = $i === ($rowCount - 1) && $emptyEnd ? null : $euros[$this->faker->numberBetween(0, count($percentages))];
+                $limit = $i === ($rowCount - 1) && $emptyEnd ? null : $euros[$this->faker->numberBetween(0, count($percentages))]['id'];
                 $data[] = [
                     'start' => '2000-01-01',
                     'end' => '2099-12-31',
