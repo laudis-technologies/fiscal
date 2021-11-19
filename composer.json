@@ -8,7 +8,10 @@
         "robmorgan/phinx": "^0.12.4",
         "fakerphp/faker": "^1.9",
         "cocur/slugify": "^4.0",
-        "symfony/uid": "^5.2"
+        "symfony/uid": "^5.2",
+        "vimeo/psalm": "^4.12",
+        "friendsofphp/php-cs-fixer": "^2.19",
+        "psalm/plugin-phpunit": "^0.16"
     },
     "license": "MIT",
     "authors": [

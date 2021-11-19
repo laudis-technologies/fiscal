@@ -11,17 +11,20 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
+
 $header = <<<'EOF'
 This file is part of the Laudis Fiscal package.
 
-(c) Laudis technologies <http://laudis.tech>
+(c) Laudis technologies <https://laudis.tech>
 
 For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
 EOF;
 
 try {
-    $finder = PhpCsFixer\Finder::create()
+    $finder = Finder::create()
         ->in(__DIR__.'/src')
         ->in(__DIR__.'/tests');
 } catch (Throwable $e) {
@@ -30,7 +33,7 @@ try {
     exit(1);
 }
 
-return PhpCsFixer\Config::create()
+return (new Config())
     ->setRules([
         '@Symfony' => true,
 
