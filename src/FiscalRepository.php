@@ -324,6 +324,7 @@ SQL
 
     private function duplicateRangePredicate(): callable
     {
+        /** @var Set<string> $set */
         $set = new Set();
         return static function (Range $x) use ($set) {
             $key = $x->getStart().':'.$x->getEnd();
