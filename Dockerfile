@@ -1,4 +1,4 @@
-FROM php:7.4-cli
+FROM php:8.0-cli
 RUN apt-get update \
     && apt-get install -y \
         zip \
@@ -15,7 +15,7 @@ RUN apt-get update \
 ARG WITH_XDEBUG=false
 
 RUN if [ $WITH_XDEBUG = "true" ] ; then \
-        pecl install channel://pecl.php.net/xdebug-2.9.3; \
+        pecl install xdebug-2.9.3 && \
         docker-php-ext-enable xdebug; \
 fi;
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -23,15 +23,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 WORKDIR /opt/project
 
 COPY composer.json composer.lock ./
-COPY tools/ tools/
-RUN composer install  && \
-    composer install --working-dir=tools/php-cs-fixer && \
-    composer install --working-dir=tools/psalm
+RUN composer install
 
-COPY phpunit.xml.dist phpunit.coverage.xml.dist psalm.xml .php_cs ./
+COPY phpunit.xml.dist phpunit.coverage.xml.dist psalm.xml .php-cs-fixer.php ./
 COPY src/ src/
 COPY tests/ tests/
-COPY docker/mariadb/resources/ resources/
 COPY .git/ .git/
 
 

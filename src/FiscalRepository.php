@@ -317,11 +317,17 @@ SQL
         return $scaleRanges;
     }
 
+    /**
+     * @return callable(Range):bool
+     */
     private function validRangePredicate(): callable
     {
         return static fn (Range $x) => $x->getStart() < $x->getEnd();
     }
 
+    /**
+     * @return callable(Range):bool
+     */
     private function duplicateRangePredicate(): callable
     {
         /** @var Set<string> $set */
@@ -381,6 +387,10 @@ SQL
 
     /**
      * @param Vector<string> $slugs
+     *
+     * @return list<array{slug: string, start: string, end: string, factor: float|null, limit: float|null}>
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function loadScalesWithRules(Vector $slugs): array
     {
@@ -403,9 +413,10 @@ SQL
     }
 
     /**
-     * @param mixed $result
+     * @param Map<string, Set<int>>                                                                  $scaleToIdMapping
+     * @param array{end: string, factor: float|null, slug: string, start: string, limit: float|null} $result
      */
-    private function fillIndexedValueIds(Map $scaleToIdMapping, $result, Map $indexedValueRanges): void
+    private function fillIndexedValueIds(Map $scaleToIdMapping, array $result, Map $indexedValueRanges): void
     {
         if (!$scaleToIdMapping->hasKey($result['slug'])) {
             $scaleToIdMapping->put($result['slug'], new Set());
@@ -423,7 +434,8 @@ SQL
     }
 
     /**
-     * @param mixed $result
+     * @param Map<string, Vector<Range>>                                                             $rangesInScale
+     * @param array{end: string, factor: float|null, slug: string, start: string, limit: float|null} $result
      */
     private function fillRuleRanges(Map $rangesInScale, $result): void
     {
@@ -439,6 +451,10 @@ SQL
 
     /**
      * @param Set<int> $indexedValuesIds
+     *
+     * @return list<array{id: int, start: string, end: string}>
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function loadIndexedValuesWithVersions(Set $indexedValuesIds): array
     {
@@ -459,15 +475,21 @@ SQL
     }
 
     /**
-     * @param mixed $result
+     * @param Map<int, Vector<Range>>                    $indexedValueRanges
+     * @param array{id: int, start: string, end: string} $result
      */
-    private function fillIndexedValueRanges(Map $indexedValueRanges, $result): void
+    private function fillIndexedValueRanges(Map $indexedValueRanges, array $result): void
     {
-        $ranges = $indexedValueRanges->get((int) $result['id']);
+        $ranges = $indexedValueRanges->get($result['id']);
         $newRange = Range::fromStringFormat($result['start'], $result['end']);
         $ranges->push($newRange);
     }
 
+    /**
+     * @param Map<string, Vector<Range>> $scaleRanges
+     * @param Map<string, Set<int>>      $scaleToIndexedValueMapping
+     * @param Map<int, Vector<Range>>    $indexedValueRanges
+     */
     private function limitAndMergeRanges(Map $scaleRanges, Map $scaleToIndexedValueMapping, Map $indexedValueRanges): void
     {
         foreach ($scaleRanges as $slug => $ranges) {
