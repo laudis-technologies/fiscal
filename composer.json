@@ -6,7 +6,7 @@
         "phpunit/phpunit": "^9.0",
         "ext-json": "*",
         "robmorgan/phinx": "^0.12.4",
-        "fzaninotto/faker": "^1.9",
+        "fakerphp/faker": "^1.9",
         "cocur/slugify": "^4.0",
         "symfony/uid": "^5.2"
     },
