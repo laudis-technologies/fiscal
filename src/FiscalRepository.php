@@ -3,7 +3,7 @@
 /*
  * This file is part of the Laudis Fiscal package.
  *
- * (c) Laudis technologies <http://laudis.tech>
+ * (c) Laudis technologies <https://laudis.tech>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -326,6 +326,7 @@ SQL
     {
         /** @var Set<string> $set */
         $set = new Set();
+
         return static function (Range $x) use ($set) {
             $key = $x->getStart().':'.$x->getEnd();
             if (!$set->contains($key)) {
@@ -356,7 +357,7 @@ SQL
             for ($i = 0; $i < $tbr->count(); ++$i) {
                 $range = $tbr->get($i);
                 if ($newRange->getStart() >= $newRange->getEnd()) {
-                    break 1;
+                    break;
                 }
                 $otherRange = $range->sortAndSplit($newRange);
                 if ($otherRange !== null) {
@@ -467,11 +468,6 @@ SQL
         $ranges->push($newRange);
     }
 
-    /**
-     * @param Map $scaleRanges
-     * @param Map $scaleToIndexedValueMapping
-     * @param Map $indexedValueRanges
-     */
     private function limitAndMergeRanges(Map $scaleRanges, Map $scaleToIndexedValueMapping, Map $indexedValueRanges): void
     {
         foreach ($scaleRanges as $slug => $ranges) {
