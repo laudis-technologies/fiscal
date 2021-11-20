@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     stages {
+        stage('Clone repository') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Pull') {
             steps {
                 sh 'docker-compose pull'
