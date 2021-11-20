@@ -23,7 +23,7 @@ use PDOException;
 use UnexpectedValueException;
 
 /**
- * @psalm-type IndexResult = array{id: string, slug: string, name_override: string|null, type: string, start: string, end: string, name: string, value: float, precision: int}
+ * @psalm-type IndexResult = array{id: numeric, slug: string, name_override: string|null, type: string, start: string, end: string, name: string, value: float, precision: int}
  * @psalm-type ScaleResult = array{id: numeric, slug: string, name: string, factor: string|null, upperLimit: string|null}
  */
 final class FiscalRepository
@@ -36,14 +36,13 @@ final class FiscalRepository
     }
 
     /**
-     * @param string|int|DateTimeInterface $timestamp
-     * @param iterable<string>             $slugs
+     * @param iterable<string> $slugs
      *
      * @throws Exception
      *
      * @return Map<string, Scale>
      */
-    public function loadScalesWithSlugs($timestamp, iterable $slugs): Map
+    public function loadScalesWithSlugs(DateTimeInterface|int|string $timestamp, iterable $slugs): Map
     {
         $context = $this->timestampToContext($timestamp);
         $results = $this->fetchIdResults($context, $slugs);
@@ -69,32 +68,30 @@ final class FiscalRepository
     }
 
     /**
-     * @param string|int|DateTimeInterface $timestamp
-     *
      * @throws Exception
      */
-    private function timestampToContext($timestamp): string
+    private function timestampToContext(string|int|DateTimeInterface $timestamp): string
     {
         if (is_string($timestamp)) {
-            $context = $timestamp;
-        } elseif (is_int($timestamp)) {
-            $context = (new DateTime('@'.$timestamp))->format('Y-m-d');
-        } else {
-            $context = $timestamp->format('Y-m-d');
+            return $timestamp;
         }
 
-        return $context;
+        if (is_int($timestamp)) {
+            return (new DateTime('@'.$timestamp))->format('Y-m-d');
+        }
+
+        return $timestamp->format('Y-m-d');
     }
 
     /**
-     * @param string|int|DateTimeInterface $dateTime
-     * @param iterable<string>             $slugs
+     * @param iterable<string> $slugs
      *
+     * @throws JsonException
      * @throws Exception
      *
      * @return Map<string, IndexedValue>
      */
-    public function loadIndexedValuesWithSlugs($dateTime, iterable $slugs): Map
+    public function loadIndexedValuesWithSlugs(string|int|DateTimeInterface $dateTime, iterable $slugs): Map
     {
         $context = $this->timestampToContext($dateTime);
         $values = $this->pullSlugResults($slugs, $context);
@@ -475,12 +472,12 @@ SQL
     }
 
     /**
-     * @param Map<int, Vector<Range>>                    $indexedValueRanges
-     * @param array{id: int, start: string, end: string} $result
+     * @param Map<int, Vector<Range>>                        $indexedValueRanges
+     * @param array{id: numeric, start: string, end: string} $result
      */
     private function fillIndexedValueRanges(Map $indexedValueRanges, array $result): void
     {
-        $ranges = $indexedValueRanges->get($result['id']);
+        $ranges = $indexedValueRanges->get((int) $result['id']);
         $newRange = Range::fromStringFormat($result['start'], $result['end']);
         $ranges->push($newRange);
     }

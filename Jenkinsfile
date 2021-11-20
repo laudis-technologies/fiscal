@@ -19,15 +19,15 @@ pipeline {
         }
         stage('Static Analysis') {
             steps {
-                sh 'docker-compose run vendor/bin/php-cs-fixer fix --dry-run'
-                sh 'docker-compose run vendor/bin/psalm --show-info=true'
+                sh 'docker-compose run client vendor/bin/php-cs-fixer fix --dry-run'
+                sh 'docker-compose run client vendor/bin/psalm --show-info=true'
             }
         }
         stage('Test') {
             steps {
                 sh 'docker-compose up -d'
                 sh 'sleep 10' // Wait for the servers to complete booting
-                sh 'docker-compose run client php vendor/bin/phpunit'
+                sh 'docker-compose exec client php vendor/bin/phpunit'
             }
         }
         stage ('Coverage') {

@@ -15,7 +15,7 @@ RUN apt-get update \
 ARG WITH_XDEBUG=false
 
 RUN if [ $WITH_XDEBUG = "true" ] ; then \
-        pecl install xdebug-2.9.3 && \
+        pecl install xdebug && \
         docker-php-ext-enable xdebug; \
 fi;
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -23,10 +23,16 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 WORKDIR /opt/project
 
 COPY composer.json composer.lock ./
-RUN composer install
+RUN composer install \
+            --no-interaction \
+            --prefer-dist \
+            --no-progress \
+            --no-scripts \
+            --profile
 
 COPY phpunit.xml.dist phpunit.coverage.xml.dist psalm.xml .php-cs-fixer.php ./
 COPY src/ src/
+COPY database/ database/
 COPY tests/ tests/
 COPY .git/ .git/
 

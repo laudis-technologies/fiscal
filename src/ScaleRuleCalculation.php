@@ -50,6 +50,7 @@ final class ScaleRuleCalculation
      */
     public function explain(float $value): Vector
     {
+        /** @var Vector<Rule> */
         $tbr = new Vector();
         $current = $this;
 
@@ -60,9 +61,16 @@ final class ScaleRuleCalculation
 
         $tbr->reverse();
 
+        //$aggregation = 0.0;
+        //        foreach ($tbr as $i => $results) {
+        //            $results['aggregated'] = $aggregation;
+        //            $tbr->set($i, $results);
+        //            $aggregation += ($results['ruleResult'] ?? 0.0);
+        //            $aggregation = is_infinite($aggregation) ? PHP_FLOAT_MAX : $aggregation;
+        //        }
         $aggregation = 0.0;
-        $results = [];
         for ($i = 0; $i < $tbr->count(); ++$i) {
+            $results = $tbr->get($i);
             $results['aggregated'] = $aggregation;
             $tbr->set($i, $results);
             $aggregation += ($results['ruleResult'] ?? 0.0);

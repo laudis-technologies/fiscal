@@ -20,8 +20,6 @@ services:
             - mariadb
         expose:
             - 9000
-        environment:
-            - XDEBUG_MODE=coverage
     mariadb:
         networks:
             - fiscal
