@@ -27,13 +27,12 @@ pipeline {
             steps {
                 sh 'docker-compose up -d'
                 sh 'sleep 10' // Wait for the servers to complete booting
-                sh 'docker-compose exec client php vendor/bin/phpunit'
+                sh 'docker-compose run client php vendor/bin/phpunit'
             }
         }
         stage ('Coverage') {
             steps {
                 sh 'docker-compose run client bash -c "\
-                    git checkout -B $BRANCH_NAME && \
                     cc-test-reporter before-build && \
                     vendor/bin/phpunit --config phpunit.coverage.xml.dist -d memory_limit=1024M && \
                     cp out/phpunit/clover.xml clover.xml && \

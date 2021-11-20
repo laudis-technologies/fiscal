@@ -18,7 +18,7 @@ use Phinx\Wrapper\TextWrapper;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-final class BasicPerformanceTest extends TestCase
+final class BasicPerformance extends TestCase
 {
     private FiscalRepository $repo;
 
