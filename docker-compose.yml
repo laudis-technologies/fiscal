@@ -14,8 +14,6 @@ services:
         working_dir: /opt/project
         networks:
             - fiscal
-        volumes:
-            - .:/opt/project
         depends_on:
             - mariadb
         expose:
