@@ -34,6 +34,7 @@ COPY phpunit.xml.dist phpunit.coverage.xml.dist psalm.xml .php-cs-fixer.php ./
 COPY src/ src/
 COPY database/ database/
 COPY tests/ tests/
+COPY out/ out/
 COPY .git/ .git/
 
 
