@@ -21,11 +21,11 @@ services:
     mariadb:
         networks:
             - fiscal
-        image: mariadb:latest
+        build:
+            context: docker/mariadb
+            dockerfile: Dockerfile
         expose:
             - 3306
         environment:
             - MYSQL_ROOT_PASSWORD=test
             - MYSQL_DATABASE=test
-        volumes:
-            - ./docker/mariadb/resources:/docker-entrypoint-initdb.d
