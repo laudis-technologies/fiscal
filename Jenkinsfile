@@ -39,7 +39,7 @@ pipeline {
             steps {
                 sh 'docker-compose run client bash -c "\
                     cc-test-reporter before-build && \
-                    vendor/bin/phpunit --config phpunit.coverage.xml.dist -d memory_limit=1024M && \
+                    XDEBUG_MODE=coverage vendor/bin/phpunit --config phpunit.coverage.xml.dist -d memory_limit=1024M && \
                     cp out/phpunit/clover.xml clover.xml && \
                     cc-test-reporter after-build --id ba53635a16f172c606d292e52962b8d05aa53bd8f5407ead59356048829d51cc --exit-code 0"'
             }
